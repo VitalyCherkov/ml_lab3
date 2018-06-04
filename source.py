@@ -38,7 +38,6 @@ def fillna(data, categorical_columns):
     for col in categorical_columns:
         data[col] = data[col].fillna(described_data[col]['top'])
 
-
     return data, described_data
 
 
@@ -92,7 +91,7 @@ def prepare(data):
 # ------------------------------------------------------------------------
 
 
-train = pd.read_csv('./data/train.csv')
+train = pd.read_csv('./data/train.csv', index_col='Id', delimiter=',')
 train = prepare(train)
 
 # ------------------------------------------------------------------------
@@ -138,14 +137,18 @@ X_train, X_test, y_train, y_test = \
 
 regr = linear_model.LinearRegression(fit_intercept=True)
 regr.fit(X_train, y_train)
-y_test_predict = regr.predict(X_test)
+y_test_predict = regr.predict(X=X_test)
 
 print('Coefficients: \n', regr.coef_)
 print("MAE: %.2f" % mean_absolute_error(y_test, y_test_predict))
 print('Variance score: %.2f' % r2_score(y_test, y_test_predict))
 
-X_check = pd.read_csv('./data/test.csv')
-y_check = pd.read_csv('./data/sample_submission.csv')
+# ------------------------------------------------------------------------
+# Проверка на тестовых данных
+# ------------------------------------------------------------------------
+
+X_check = pd.read_csv('./data/test.csv', index_col='Id', delimiter=',')
+y_check = pd.read_csv('./data/sample_submission.csv', index_col='Id', delimiter=',')
 
 X_check = prepare(X_check)
 X_check = X_check[MEANING_FEATURES]
@@ -155,7 +158,7 @@ y_check = y_check[[SALE_PRICE]]
 
 print(X_check.columns[X_check.isnull().values.any()].tolist())
 
-y_check_predict = regr.predict(X_check)
+y_check_predict = regr.predict(X=X_check)
 
 # print('Coefficients: \n', regr.coef_)
 # print("MAE: %.2f" % mean_absolute_error(y_check, y_check_predict))
